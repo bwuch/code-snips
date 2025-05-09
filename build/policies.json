@@ -1,0 +1,8 @@
+{
+  "policies": {
+    "Certificates": {
+      "ImportEnterpriseRoots": true, "Install": ["/usr/local/share/ca-certificates/rootca-example-com.crt"]
+    },
+  "DisableAppUpdate": true
+  }
+}

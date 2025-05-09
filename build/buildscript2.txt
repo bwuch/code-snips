@@ -1,0 +1,41 @@
+if [ -z $1 ]; then
+  echo "Please provide an argument which is used for hostname and other logic."
+  exit 1
+fi
+
+# The following code will run for either case, gui or cli
+sudo sed -i "s/sethostname box/sethostname $1/g" /opt/bootsync.sh
+
+tce-load -wi ca-certificates curl pcre
+
+sudo mkdir /usr/local/share/ca-certificates
+sudo wget http://www.example.com/build/rootca-example-com.crt -P /usr/local/share/ca-certificates
+sudo update-ca-certificates
+echo "usr/local/share/ca-certificates" >> /opt/.filetool.lst
+
+echo "/usr/local/sbin/update-ca-certificates" | sudo tee -a /opt/bootlocal.sh 
+echo "/usr/local/etc/init.d/open-vm-tools restart" | sudo tee -a /opt/bootlocal.sh 
+
+
+if [[ $1 == *"gui"* ]]; then
+  # install firefox and open-vm-tools-desktop packages
+  tce-load -wi firefox_getLatest open-vm-tools-desktop
+
+  # deploy firefox policy to disable autoupdate and trust certs
+  sudo mkdir -p /etc/firefox/policies
+  sudo wget http://www.example.com/build/policies.json -P /etc/firefox/policies
+  echo "etc/firefox" >> /opt/.filetool.lst
+
+  # install firefox latest
+  firefox_getLatest.sh
+
+  # instead of loading the firefox_getLatest script, load actual firefox
+  sudo sed -i 's/firefox_getLatest/firefox/g' /etc/sysconfig/tcedir/onboot.lst
+
+else
+  # install open-vm-tools package
+  tce-load -wi open-vm-tools
+fi
+
+# the follow will run after all else to backup the config.
+echo y | backup
