@@ -4,17 +4,22 @@ if [ -z $1 ]; then
 fi
 
 # The following code will run for either case, gui or cli
+# Set the hostname
 sudo sed -i "s/sethostname box/sethostname $1/g" /opt/bootsync.sh
 
+# Install foundational binaries
 tce-load -wi ca-certificates curl pcre
 
+# Setup certificates
 sudo mkdir /usr/local/share/ca-certificates
 sudo wget http://www.example.com/build/rootca-example-com.crt -P /usr/local/share/ca-certificates
+sudo wget http://www.example.com/build/p-control-01-ca.crt -P /usr/local/share/ca-certificates
 sudo update-ca-certificates
 echo "usr/local/share/ca-certificates" >> /opt/.filetool.lst
 
-echo "/usr/local/sbin/update-ca-certificates" | sudo tee -a /opt/bootlocal.sh 
-echo "/usr/local/etc/init.d/open-vm-tools restart" | sudo tee -a /opt/bootlocal.sh 
+# Update certs & restart vmware-tools on each boot
+echo "/usr/local/sbin/update-ca-certificates > /dev/null 2>&1" | sudo tee -a /opt/bootlocal.sh 
+echo "/usr/local/etc/init.d/open-vm-tools restart > /dev/null 2>&1" | sudo tee -a /opt/bootlocal.sh 
 
 
 if [[ $1 == *"gui"* ]]; then
@@ -35,6 +40,13 @@ if [[ $1 == *"gui"* ]]; then
 else
   # install open-vm-tools package
   tce-load -wi open-vm-tools
+fi
+
+# If cc is in the host name, enable the common control script
+if [[ $1 == *"cc"* ]]; then
+  sudo wget http://www.example.com/build/cc.txt -O /home/tc/cc.sh
+  sudo chmod +x /home/tc/cc.sh
+  echo "/home/tc/cc.sh" | sudo tee -a /opt/bootlocal.sh 
 fi
 
 # the follow will run after all else to backup the config.

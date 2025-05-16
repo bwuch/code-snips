@@ -1,7 +1,7 @@
 {
   "policies": {
     "Certificates": {
-      "ImportEnterpriseRoots": true, "Install": ["/usr/local/share/ca-certificates/rootca-example-com.crt"]
+      "ImportEnterpriseRoots": true, "Install": ["/usr/local/share/ca-certificates/rootca-example-com.crt","/usr/local/share/ca-certificates/p-control-01-ca.crt"]
     },
   "DisableAppUpdate": true
   }
